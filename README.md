@@ -5,19 +5,32 @@ This project uses docker-compose to orchestrate creation and startup of its cont
 
 For complete information on Geoserver, see http://geoserver.org/
 
-# What runs here
+## What is included
 
-* geoserver to serve data in a variety of formats
-* geowebcache to cache map tiles
-* postgis/postgresql to store data
-* pgadmin to administer postgresql
-* nginx to act as a proxy and also it can serve static content
+* GeoServer to serve spatial data in a wide variety of formats
+* GeoWebCache to cache map tiles
+* PostGIS/PostgreSQL to store data
+* pgadmin to administer PostgreSQL
+* nginx to act as a reverse proxy for everything and also it can serve static content
 
-## Settings
+# How to run everything
 
-Copy dotenv-sample to .env and then edit it to specify site-specific information including passwords and hostname.
+## Prerequisites
 
-### SSL
+You need to have working copies of docker and docker-compose.
+So far I have only tested on Debian Stretch.
+
+## The start up steps
+
+1. Clone the project to a local folder.
+2. 'cd' into the folder.
+3. Copy dotenv-sample to .env and edit it. It has passwords and hostname and stuff like that in it.
+4. Type "docker-compose up -d"
+
+2019-03-07 It probably won't work for you, because I only released it today. :-) 
+So tell me what happened, and I'll fix it. Things will go faster for you that way.
+
+### SSL sort of works
 
 Initially I set this project up to support SSL certificates but I've
 decided not to worry about them. The way I implemented it was by
@@ -56,26 +69,4 @@ web interface, go to "TileCaching"->"Caching Defaults", turn on
 
 Once you do that when you hit the server with a WMS request,
 you will need to add "tiled=true" to the URL for it to work.
-
-## Run everything
-
-This command starts nginx, postgis, geoserver, geowebcache, and pgadmin4
-
-    docker-compose up -d
-
-It uses the config file docker-compose.yml to set all this up.
-
-## Master password
-
-There will be a master password stashed away in the Tomcat containers
-(for geoserver and geowebcache). I used to have information here on
-how to find it, but I don't think it's that important anymore. Google
-it.
-
-## Sample GeoServer data issue 
-
-If you use a volume you won't be able to access the GeoServer sample
-data with this container, it will be in the wrong place, I used to
-have complicated instructions here on how to fix this, but I don't
-care about the sample data anymore. Just use your own.
 
