@@ -1,0 +1,19 @@
+server {
+    server_name {{ virtualhost }};
+    listen 80;
+    root   /var/www/html;
+    index  index.html;
+
+    access_log /dev/stdout;
+    error_log /dev/stdout;
+
+    {{ accesspolicy }}
+    
+    # log_subrequest on
+
+    # If you have proxies, define them here.
+    include /etc/nginx/proxy.d/*.conf;
+
+    # If you have installed certificates, uncomment this to enable SSL
+    #include /etc/nginx/snippets/virtualhost_ssl.conf;
+}
