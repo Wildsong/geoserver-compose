@@ -8,6 +8,6 @@ PGADMIN_PASSWORD=PutPasswordHere
 # nginx
 VIRTUALHOST=Put_FQDN_name_here
 # Default is to allow anyone to hit your geoserver.
-ACCESSPOLICY="allow all;"
+ACCESSPOLICY=allow all;
 # You can put a rule like this here to limit it.
-#ACCESSPOLICY="allow 192.168.123.0/24; allow 68.185.2.196; deny all;"
+#ACCESSPOLICY=allow 192.168.123.0/24; allow 68.185.2.196; deny all;

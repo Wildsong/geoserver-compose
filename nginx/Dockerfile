@@ -23,14 +23,14 @@ ADD virtualhost.conf.j2 /etc/nginx/conf.d/
 
 ADD virtualhost_ssl.conf /etc/nginx/snippets/
 
-# If I need more flexibility I can switch to using jinja2 templates
-#RUN pip install j2cli
+# Let me use actual jinja2 templates
+RUN pip install j2cli
 
 # NB that the envariable is expanded right here so
 # it does not need to be passed to the container in an ENV statement.
 
 RUN rm -f /etc/nginx/conf.d/default.conf && \
-    /bin/sed "s/{{ virtualhost }}/${virtualhost}/" < virtualhost.conf.j2 > virtualhost.conf
+    j2 virtualhost.conf.j2 > virtualhost.conf
 
 # Static content
 VOLUME /var/www/html/
