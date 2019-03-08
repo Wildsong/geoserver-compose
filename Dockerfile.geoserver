@@ -1,0 +1,19 @@
+FROM geoceg/geoserver:2.15.0
+MAINTAINER Brian H Wilson "brian@wildsong.biz"
+
+# Install the Vector Tiles plugin
+
+ADD https://astuteinternet.dl.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-vectortiles-plugin.zip /tmp/vectortiles.zip
+
+WORKDIR /usr/local/tomcat/webapps/geoserver/WEB-INF/lib
+RUN unzip /tmp/vectortiles.zip
+
+WORKDIR /usr/local/tomcat
+
+# Allow Tomcat "manager" access from my network 
+ADD manager-context.xml webapps/manager/META-INF/context.xml
+
+# Add password file
+ADD tomcat-users.xml conf/
+
+RUN chmod 600 conf/tomcat-users.xml webapps/manager/META-INF/context.xml

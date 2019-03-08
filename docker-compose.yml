@@ -1,0 +1,79 @@
+version: '3.7'
+services:
+  db:
+    container_name: geoserver-db
+    env_file: .env
+    image: mdillon/postgis:11
+    environment:
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD}
+    # I don't really need to put the PostGIS data in a separate volume.
+    # Can having it in a volume make it easier to back up?
+    # I think it's on SSD where it is, so fast but not a lot of space.
+    ports:
+      - "5432:5432"
+    volumes:
+      - type: volume
+        source: db_data
+        target: /var/lib/postgresql/data
+    restart: unless-stopped
+
+  geoserver:
+    container_name: geoserver
+    environment:
+      GEOSERVER_DATA_DIR: /geoserver
+      GEOWEBCACHE_DATA_DIR: /geoserver/gwc
+      ENABLE_JSONP: "true"
+    ports:
+      - "8888:8080"
+    volumes:
+      - type: volume
+        source: geoserver_data
+        target: /geoserver
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.geoserver
+   
+  pgadmin:
+    container_name: geoserver-pgadmin
+    env_file: .env
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      # Added SCRIPT_NAME to solve this problem: https://stackoverflow.com/questions/46381668/pgadmin4-wont-work-in-specific-location-behind-nginx
+      SCRIPT_NAME: /pgadmin4
+
+  # Support full HTTP and HTTPS
+  # Provides proxies for GeoServer and PGadmin
+  nginx:
+    container_name: geoserver-nginx
+    env_file: .env
+    environment:
+        virtualhost: ${VIRTUALHOST}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - type: volume
+        source: static_content
+        target: /var/www/html/
+    depends_on:
+      - geoserver
+      - pgadmin
+    restart: unless-stopped
+    build:
+      context: ./nginx
+      args:
+        virtualhost: ${VIRTUALHOST}
+
+volumes:
+  db_data:
+    name: geoserver_postgis_data
+
+  static_content:
+    name: geoserver_static_content
+
+  geoserver_data:
+    name: geoserver_data

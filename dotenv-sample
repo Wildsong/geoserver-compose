@@ -1,0 +1,9 @@
+# PostGIS
+DB_ADMIN_PASSWORD=PutPasswordHere
+
+# pgadmin4
+PGADMIN_USER=PutAnEmailAddressHere
+PGADMIN_PASSWORD=PutPasswordHere
+
+# nginx
+VIRTUALHOST=Put_FQDN_name_here
