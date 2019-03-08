@@ -52,6 +52,7 @@ services:
     env_file: .env
     environment:
         virtualhost: ${VIRTUALHOST}
+        accesspolicy: ${ACCESSPOLICY}
     ports:
       - "80:80"
       - "443:443"
