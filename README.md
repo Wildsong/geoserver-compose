@@ -70,3 +70,9 @@ web interface, go to "TileCaching"->"Caching Defaults", turn on
 Once you do that when you hit the server with a WMS request,
 you will need to add "tiled=true" to the URL for it to work.
 
+### nginx
+
+The static content service by nginx is in a named volume.
+So if you add content to the volume it will persist.
+
+There is a README.md for nginx in the nginx directory.

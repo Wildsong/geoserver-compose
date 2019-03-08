@@ -50,9 +50,6 @@ services:
   nginx:
     container_name: geoserver-nginx
     env_file: .env
-    environment:
-        virtualhost: ${VIRTUALHOST}
-        accesspolicy: ${ACCESSPOLICY}
     ports:
       - "80:80"
       - "443:443"
@@ -67,7 +64,8 @@ services:
     build:
       context: ./nginx
       args:
-        virtualhost: ${VIRTUALHOST}
+        VIRTUALHOST: ${VIRTUALHOST}
+        ACCESSPOLICY: ${ACCESSPOLICY}
 
 volumes:
   db_data:
