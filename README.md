@@ -11,7 +11,12 @@ For complete information on Geoserver, see http://geoserver.org/
 * GeoWebCache to cache map tiles
 * PostGIS/PostgreSQL to store data
 * pgadmin to administer PostgreSQL
-* nginx to act as a reverse proxy for everything and also it can serve static content
+* nginx to act as a reverse proxy for everything and to serve static content
+
+### GeoServer includes plugins
+
+* vector tiles
+* WPS
 
 # How to run everything
 

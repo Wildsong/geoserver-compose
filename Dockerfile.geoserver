@@ -6,7 +6,14 @@ MAINTAINER Brian H Wilson "brian@wildsong.biz"
 ADD https://astuteinternet.dl.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-vectortiles-plugin.zip /tmp/vectortiles.zip
 
 WORKDIR /usr/local/tomcat/webapps/geoserver/WEB-INF/lib
-RUN unzip /tmp/vectortiles.zip
+RUN unzip -o /tmp/vectortiles.zip
+
+# Install the WPS plugin
+
+ADD https://astuteinternet.dl.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-wps-plugin.zip /tmp/wps.zip
+
+WORKDIR /usr/local/tomcat/webapps/geoserver/WEB-INF/lib
+RUN unzip -o /tmp/wps.zip
 
 WORKDIR /usr/local/tomcat
 
