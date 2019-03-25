@@ -15,8 +15,8 @@ For complete information on Geoserver, see http://geoserver.org/
 
 ### GeoServer includes plugins
 
-* vector tiles
-* WPS
+* Vector tile service (integrated with GeoWebCache too)
+* WPS, on my server I can test this with http://maps.wildsong.biz/geoserver/ows?service=WPS&version=1.0.0&request=GetCapabilities
 
 # How to run everything
 
@@ -34,6 +34,24 @@ So far I have only tested on Debian Stretch.
 
 2019-03-07 It probably won't work for you, because I only released it today. :-) 
 So tell me what happened, and I'll fix it. Things will go faster for you that way.
+
+
+## GeoWebCache
+
+Just because there is a geowebcache server does not mean it will
+do anything. Once everything is running, go into the geoserver
+web interface, go to "TileCaching"->"Caching Defaults", turn on
+"Enable direct integration".. and click "Save".
+
+Once you do that when you hit the server with a WMS request,
+you will need to add "tiled=true" to the URL for it to work.
+
+## nginx
+
+The static content service by nginx is in a named volume.
+So if you add content to the volume it will persist.
+
+There is a README.md for nginx in the nginx directory.
 
 ### SSL sort of works
 
@@ -58,26 +76,10 @@ certbot and live here as installed on the host:
 ````
 My certificates are not checked into github for obvious reasons.
 
-### CORS
+### CORS support
 
 I put the configuration to generate the right HTTP headers to avoid
 Cross Origin Scripting (CORS) error messages into the nginx proxy, see
 nginx/proxy.d/geoserver.conf It seems to be working with Chrome and
 Firefox on Windows.
 
-### GeoWebCache
-
-Just because there is a geowebcache server does not mean it will
-do anything. Once everything is running, go into the geoserver
-web interface, go to "TileCaching"->"Caching Defaults", turn on
-"Enable direct integration".. and click "Save".
-
-Once you do that when you hit the server with a WMS request,
-you will need to add "tiled=true" to the URL for it to work.
-
-### nginx
-
-The static content service by nginx is in a named volume.
-So if you add content to the volume it will persist.
-
-There is a README.md for nginx in the nginx directory.
