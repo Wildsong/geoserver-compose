@@ -4,27 +4,37 @@ MAINTAINER Brian H Wilson "brian@wildsong.biz"
 # Install GDAL so that the ogr-* plugins will work
 RUN apt-get update && apt-get -y install gdal-bin
 
+# Download the wps plugin and its supporting ogr-wfs and ogr-wps plugins
+# ...the ogr plugins require GDAL to be findable on the path.
+
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-wps-plugin.zip /tmp/wps-plugin.zip
+
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-ogr-wfs-plugin.zip /tmp/ogr-wfs-plugin.zip
+
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-ogr-wps-plugin.zip /tmp/ogr-wps-plugin.zip
+
+# Vector Tiles plugin
+
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-vectortiles-plugin.zip /tmp/vectortiles-plugin.zip
+
+# Excel WFS plugin (adds ability to generate XLS/XLSX files from WFS queries)
+
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-excel-plugin.zip /tmp/excel-plugin.zip
+
+ENV APACHE_COMMONS_COMPRESS_VERSION 1.18
+
+# Install Apache Commons Compress for the Excel XLSX formatter
+ADD http://mirrors.sonic.net/apache//commons/compress/binaries/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}-bin.zip /tmp/commons-compress.zip
 # GeoServer plugins get installed here
 
 WORKDIR /usr/local/tomcat/webapps/geoserver/WEB-INF/lib
 
-# Download the wps plugin and its supporting ogr-wfs and ogr-wps plugins
-# ...the ogr plugins require GDAL to be findable on the path.
-
-ADD https://astuteinternet.dl.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-wps-plugin.zip /tmp/wps-plugin.zip
-
-ADD https://astuteinternet.dl.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-ogr-wfs-plugin.zip /tmp/ogr-wfs-plugin.zip
-
-ADD https://astuteinternet.dl.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-ogr-wps-plugin.zip /tmp/ogr-wps-plugin.zip
-
-# Vector Tiles plugin
-
-ADD https://astuteinternet.dl.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-vectortiles-plugin.zip /tmp/vectortiles-plugin.zip
-
 RUN unzip -o /tmp/ogr-wfs-plugin.zip && \
     unzip -o /tmp/ogr-wps-plugin.zip && \
     unzip -o /tmp/wps-plugin.zip && \
-    unzip -o /tmp/vectortiles-plugin.zip
+    unzip -o /tmp/vectortiles-plugin.zip && \
+    unzip -o /tmp/commons-compress.zip commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}.jar && \
+    unzip -o /tmp/excel-plugin.zip
 
 WORKDIR /usr/local/tomcat
 

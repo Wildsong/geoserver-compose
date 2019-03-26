@@ -13,14 +13,18 @@ For complete information on Geoserver, see http://geoserver.org/
 * pgadmin to administer PostgreSQL
 * nginx to act as a reverse proxy for everything and to serve static content
 
-### GeoServer includes plugins
+### Some extra plugins for GeoServer are installed
 
 * Vector tile service (integrated with GeoWebCache too)
+* Excel (allows generating Excel files as WFS output)
 * wps
 * ogr-wfs
 * ogr-wps
 
-The ogr-* plugins use the command line ogr* tools so the
+Adding the Excel plugin required adding the Apache Commons Compress JAR file.
+See http://commons.apache.org/proper/commons-compress
+
+The ogr-* plugins use the command line ogr* tools so the gdal-bin Debian
 package is installed.
 
 # How to run everything
