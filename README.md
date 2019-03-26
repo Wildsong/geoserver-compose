@@ -16,7 +16,12 @@ For complete information on Geoserver, see http://geoserver.org/
 ### GeoServer includes plugins
 
 * Vector tile service (integrated with GeoWebCache too)
-* WPS, on my server I can test this with http://maps.wildsong.biz/geoserver/ows?service=WPS&version=1.0.0&request=GetCapabilities
+* wps
+* ogr-wfs
+* ogr-wps
+
+The ogr-* plugins use the command line ogr* tools so the
+package is installed.
 
 # How to run everything
 
