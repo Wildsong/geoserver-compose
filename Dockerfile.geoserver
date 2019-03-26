@@ -33,7 +33,7 @@ RUN unzip -o /tmp/ogr-wfs-plugin.zip && \
     unzip -o /tmp/ogr-wps-plugin.zip && \
     unzip -o /tmp/wps-plugin.zip && \
     unzip -o /tmp/vectortiles-plugin.zip && \
-    unzip -o /tmp/commons-compress.zip commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}.jar && \
+    unzip -j /tmp/commons-compress.zip commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}.jar && \
     unzip -o /tmp/excel-plugin.zip
 
 WORKDIR /usr/local/tomcat
