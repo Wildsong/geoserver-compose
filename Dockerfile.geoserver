@@ -1,6 +1,9 @@
 FROM geoceg/geoserver:2.15.0
 MAINTAINER Brian H Wilson "brian@wildsong.biz"
 
+ENV GEOSERVER_BASE_VERSION 2.15
+ENV APACHE_COMMONS_COMPRESS_VERSION 1.18
+
 # Install GDAL so that the ogr-* plugins will work
 RUN apt-get update && apt-get -y install gdal-bin
 
@@ -21,8 +24,6 @@ ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VER
 
 ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-excel-plugin.zip /tmp/excel-plugin.zip
 
-ENV APACHE_COMMONS_COMPRESS_VERSION 1.18
-
 # Install Apache Commons Compress for the Excel XLSX formatter
 ADD http://mirrors.sonic.net/apache//commons/compress/binaries/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}-bin.zip /tmp/commons-compress.zip
 # GeoServer plugins get installed here
@@ -35,6 +36,12 @@ RUN unzip -o /tmp/ogr-wfs-plugin.zip && \
     unzip -o /tmp/vectortiles-plugin.zip && \
     unzip -j /tmp/commons-compress.zip commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}.jar && \
     unzip -o /tmp/excel-plugin.zip
+
+# Community modules -- Scripting with Python
+# https://docs.geoserver.org/latest/en/user/community/scripting/index.html
+ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-python-plugin.zip python-plugin.zip
+
+RUN unzip -o python-plugin.zip
 
 WORKDIR /usr/local/tomcat
 

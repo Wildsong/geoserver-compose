@@ -20,6 +20,7 @@ For complete information on Geoserver, see http://geoserver.org/
 * wps
 * ogr-wfs
 * ogr-wps
+* scripting (allows installing python scripts on the GeoServer)
 
 Adding the Excel plugin required adding the Apache Commons Compress JAR file.
 See http://commons.apache.org/proper/commons-compress
