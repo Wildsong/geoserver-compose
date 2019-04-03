@@ -2,14 +2,15 @@ version: '3.7'
 services:
   db:
     container_name: geoserver-db
-    env_file: .env
     image: mdillon/postgis:11
+    env_file: .env
     environment:
       PGDATA: /var/lib/postgresql/data
       POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD}
-    # I don't really need to put the PostGIS data in a separate volume.
-    # Can having it in a volume make it easier to back up?
-    # I think it's on SSD where it is, so fast but not a lot of space.
+      NETWORK_ACCESS: internal
+    networks:
+      - proxy_net
+    # Exposing the port makes working from the host via psql easier.
     ports:
       - "5432:5432"
     volumes:
@@ -20,12 +21,20 @@ services:
 
   geoserver:
     container_name: geoserver
+    env_file: .env
     environment:
       GEOSERVER_DATA_DIR: /geoserver
       GEOWEBCACHE_DATA_DIR: /geoserver/gwc
       ENABLE_JSONP: "true"
-    ports:
-      - "8888:8080"
+      VIRTUAL_HOST: ${GEOSERVER_VIRTUAL_HOST}
+      VIRTUAL_PORT: 8080
+      NETWORK_ACCESS: internal
+      LETSENCRYPT_HOST: ${GEOSERVER_VIRTUAL_HOST}
+      LETSENCRYPT_MAIL: ${MY_EMAIL}
+    networks:
+      - proxy_net
+    expose:
+      - "8080"
     volumes:
       - type: volume
         source: geoserver_data
@@ -38,41 +47,37 @@ services:
   pgadmin:
     container_name: geoserver-pgadmin
     env_file: .env
-    image: dpage/pgadmin4
+    # dpage/pgadmin4 is the official release
+    image: dpage/pgadmin4:4.3
+    networks:
+      - proxy_net
+# Use this when running behind reverse proxy      
+    expose:
+      - "80"
+# Only open this up for test
+#    ports:
+#      - "80:80"
     environment:
+      VIRTUAL_HOST: ${PGADMIN_VIRTUAL_HOST}
+      VIRTUAL_PORT: 80
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
       # Added SCRIPT_NAME to solve this problem: https://stackoverflow.com/questions/46381668/pgadmin4-wont-work-in-specific-location-behind-nginx
-      SCRIPT_NAME: /pgadmin4
-
-  # Support full HTTP and HTTPS
-  # Provides proxies for GeoServer and PGadmin
-  nginx:
-    container_name: geoserver-nginx
-    env_file: .env
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - type: volume
-        source: static_content
-        target: /var/www/html/
-    depends_on:
-      - geoserver
-      - pgadmin
-    restart: unless-stopped
-    build:
-      context: ./nginx
-      args:
-        VIRTUALHOST: ${VIRTUALHOST}
-        ACCESSPOLICY: ${ACCESSPOLICY}
+#      SCRIPT_NAME: /pgadmin4
+      NETWORK_ACCESS: internal
+      LETSENCRYPT_HOST: ${PGADMIN_VIRTUAL_HOST}
+      LETSENCRYPT_MAIL: ${MY_EMAIL}
 
 volumes:
   db_data:
     name: geoserver_postgis_data
 
-  static_content:
-    name: geoserver_static_content
-
   geoserver_data:
     name: geoserver_data
+
+networks:
+  # This is a network we share with our reverse proxy
+  proxy_net:
+    name: proxy_net
+    # Won't be created or destroyed with docker-compose up|down
+    external: true

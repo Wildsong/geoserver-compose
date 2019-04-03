@@ -28,6 +28,10 @@ ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VER
 ADD http://mirrors.sonic.net/apache//commons/compress/binaries/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}-bin.zip /tmp/commons-compress.zip
 # GeoServer plugins get installed here
 
+# Community modules -- Scripting with Python
+# https://docs.geoserver.org/latest/en/user/community/scripting/index.html
+ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-python-plugin.zip python-plugin.zip
+
 WORKDIR /usr/local/tomcat/webapps/geoserver/WEB-INF/lib
 
 RUN unzip -o /tmp/ogr-wfs-plugin.zip && \
@@ -37,18 +41,14 @@ RUN unzip -o /tmp/ogr-wfs-plugin.zip && \
     unzip -j /tmp/commons-compress.zip commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}.jar && \
     unzip -o /tmp/excel-plugin.zip
 
-# Community modules -- Scripting with Python
-# https://docs.geoserver.org/latest/en/user/community/scripting/index.html
-ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-python-plugin.zip python-plugin.zip
-
-RUN unzip -o python-plugin.zip
+RUN unzip -o /tmp/python-plugin.zip
 
 WORKDIR /usr/local/tomcat
 
+# I don't ever touch the Tomcat server directly so I am not
+# bothering to enable management anymore. 
 # Allow Tomcat "manager" access from my network 
-ADD manager-context.xml webapps/manager/META-INF/context.xml
-
+#ADD manager-context.xml webapps/manager/META-INF/context.xml
 # Add password file
-ADD tomcat-users.xml conf/
-
-RUN chmod 600 conf/tomcat-users.xml webapps/manager/META-INF/context.xml
+#ADD tomcat-users.xml conf/
+#RUN chmod 600 conf/tomcat-users.xml webapps/manager/META-INF/context.xml
