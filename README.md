@@ -11,15 +11,13 @@ For complete information on Geoserver, see http://geoserver.org/
 
 * GeoServer to serve spatial data in a wide variety of formats
 * GeoWebCache to cache map tiles
+* A web server to serve static content, for example JavaScript apps
 * PostGIS/PostgreSQL to store data
 * pgadmin to administer PostgreSQL
 
 I used to include nginx in this bundle as a reverse proxy but I
 removed it because I needed to proxy other dockers too, so now the
-proxy is separate from geoserver. Likewise there is no web server for
-static content here either. In THEORY Tomcat can serve static content
-but that flies in the face of the Docker approach so don't even think
-of it!
+proxy is separate from geoserver. 
 
 I used to activate the management interface on Tomcat but I don't do
 that anymore. Some vestiges remain in Dockerfile.geoserver.

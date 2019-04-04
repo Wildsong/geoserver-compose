@@ -14,49 +14,67 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - type: volume
-        source: db_data
-        target: /var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   geoserver:
     container_name: geoserver
     env_file: .env
     environment:
-      GEOSERVER_DATA_DIR: /geoserver
-      GEOWEBCACHE_DATA_DIR: /geoserver/gwc
       ENABLE_JSONP: "true"
       VIRTUAL_HOST: ${GEOSERVER_VIRTUAL_HOST}
       VIRTUAL_PORT: 8080
       NETWORK_ACCESS: internal
       LETSENCRYPT_HOST: ${GEOSERVER_VIRTUAL_HOST}
       LETSENCRYPT_MAIL: ${MY_EMAIL}
+      GEOSERVER_DATA_DIR: /geoserver
+      GEOWEBCACHE_DATA_DIR: /geoserver/gwc
     networks:
       - proxy_net
     expose:
       - "8080"
     volumes:
-      - type: volume
-        source: geoserver_data
-        target: /geoserver
+      - geoserver_data:/geoserver
     restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile.geoserver
    
+  web-server:
+    container_name: geoserver-web
+    image: nginx:alpine
+    networks:
+      - proxy_net
+    env_file: .env
+    environment:
+      VIRTUAL_HOST: ${WEB_SERVER}
+      LETSENCRYPT_HOST: ${WEB_SERVER}
+      LETSENCRYPT_MAIL: ${WEB_SERVER_MAIL}
+      NETWORK_ACCESS: internal
+    expose:
+      - "80"
+    volumes:
+      # I am binding this to a filesystem on the host
+      # for now to make updating content easier.
+      - /var/www/maps/html:/usr/share/nginx/html
+    restart: unless-stopped
+ 
   pgadmin:
     container_name: geoserver-pgadmin
     env_file: .env
     # dpage/pgadmin4 is the official release
-    image: dpage/pgadmin4:4.3
+    image: dpage/pgadmin4:4.4
     networks:
       - proxy_net
 # Use this when running behind reverse proxy      
     expose:
       - "80"
-# Only open this up for test
+# Only open this up for test, "expose" + proxy is the normal setup.
 #    ports:
 #      - "80:80"
+    volumes:
+      # Session data, user files, config files, config database go here.
+      - geoserver_pgadmin:/var/lib/pgadmin
     environment:
       VIRTUAL_HOST: ${PGADMIN_VIRTUAL_HOST}
       VIRTUAL_PORT: 80
@@ -74,6 +92,9 @@ volumes:
 
   geoserver_data:
     name: geoserver_data
+
+  geoserver_pgadmin:
+    name: geoserver_pgadmin
 
 networks:
   # This is a network we share with our reverse proxy
