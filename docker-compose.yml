@@ -63,7 +63,7 @@ services:
     container_name: geoserver-pgadmin
     env_file: .env
     # dpage/pgadmin4 is the official release
-    image: dpage/pgadmin4:4.4
+    image: dpage/pgadmin4:4.5
     networks:
       - proxy_net
 # Use this when running behind reverse proxy      
