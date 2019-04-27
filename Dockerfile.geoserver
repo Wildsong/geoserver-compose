@@ -30,7 +30,7 @@ ADD http://mirrors.sonic.net/apache//commons/compress/binaries/commons-compress-
 
 # Community modules -- Scripting with Python
 # https://docs.geoserver.org/latest/en/user/community/scripting/index.html
-ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-python-plugin.zip python-plugin.zip
+ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-python-plugin.zip /tmp/python-plugin.zip
 
 WORKDIR /usr/local/tomcat/webapps/geoserver/WEB-INF/lib
 
