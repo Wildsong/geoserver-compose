@@ -1,7 +1,7 @@
-FROM geoceg/geoserver:2.15.0
+FROM wildsong/geoserver:2.15.1
 MAINTAINER Brian H Wilson "brian@wildsong.biz"
 
-ENV GEOSERVER_BASE_VERSION 2.15
+ENV GEOSERVER_BASE_VERSION 2.15.1
 ENV APACHE_COMMONS_COMPRESS_VERSION 1.18
 
 # Install GDAL so that the ogr-* plugins will work
