@@ -1,7 +1,8 @@
 FROM wildsong/geoserver:2.15.1
 MAINTAINER Brian H Wilson "brian@wildsong.biz"
 
-ENV GEOSERVER_BASE_VERSION 2.15.1
+# Note: "BASE" is the same as GEOSERVER_VERSION, see "community-latest"
+ENV GEOSERVER_BASE_VERSION 2.15
 ENV APACHE_COMMONS_COMPRESS_VERSION 1.18
 
 # Install GDAL so that the ogr-* plugins will work
@@ -45,10 +46,3 @@ RUN unzip -o /tmp/python-plugin.zip
 
 WORKDIR /usr/local/tomcat
 
-# I don't ever touch the Tomcat server directly so I am not
-# bothering to enable management anymore. 
-# Allow Tomcat "manager" access from my network 
-#ADD manager-context.xml webapps/manager/META-INF/context.xml
-# Add password file
-#ADD tomcat-users.xml conf/
-#RUN chmod 600 conf/tomcat-users.xml webapps/manager/META-INF/context.xml
