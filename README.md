@@ -15,12 +15,14 @@ For complete information on Geoserver, see http://geoserver.org/
 * PostGIS/PostgreSQL to store data
 * pgadmin to administer PostgreSQL
 
-I used to include nginx in this bundle as a reverse proxy but I
-removed it because I needed to proxy other dockers too, so now the
-proxy is separate from geoserver. 
+### Reverse proxy no longer included
 
-I used to activate the management interface on Tomcat but I don't do
-that anymore. Some vestiges remain in Dockerfile.geoserver.
+I used to include nginx in this bundle as a reverse proxy but I moved
+it to a separate project because I needed to proxy other dockers on the same server,
+so now the proxy is separate from geoserver. It's called docker-proxy
+and it's in a github repository. It's at
+https://github.com:brian32768/docker-proxy.git It works quite well,
+including full support for Let's Encrypt certificates.
 
 ### Some extra plugins for GeoServer are installed
 
@@ -60,5 +62,4 @@ web interface, go to "TileCaching"->"Caching Defaults", turn on
 
 Once you do that when you hit the server with a WMS request,
 you will need to add "tiled=true" to the URL for it to work.
-
 
