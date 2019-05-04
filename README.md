@@ -13,6 +13,7 @@ For complete information on Geoserver, see http://geoserver.org/
 * GeoWebCache to cache map tiles
 * A web server to serve static content, for example JavaScript apps
 * PostGIS/PostgreSQL to store data
+* PL/python3 procedural language
 * pgadmin to administer PostgreSQL
 
 ### Reverse proxy no longer included

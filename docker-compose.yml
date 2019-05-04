@@ -2,7 +2,6 @@ version: '3.7'
 services:
   db:
     container_name: geoserver-db
-    image: mdillon/postgis:11
     env_file: .env
     environment:
       PGDATA: /var/lib/postgresql/data
@@ -16,6 +15,9 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.postgis
 
   geoserver:
     container_name: geoserver
