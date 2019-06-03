@@ -6,9 +6,8 @@ services:
     environment:
       PGDATA: /var/lib/postgresql/data
       POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD}
-      NETWORK_ACCESS: internal
     networks:
-      - proxy_net
+      - postgis_net
     # Exposing the port makes working from the host via psql easier.
     ports:
       - "5432:5432"
@@ -18,6 +17,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.postgis
+
+  db-backups:
+    container_name: geoserver-db-backup
+    image: kartoza/pg-backup:11.0
+    env_file: .env
+    environment:
+      PGUSER: postgres
+      PGPASSWORD: ${DB_ADMIN_PASSWORD}
+      PGHOST: db
+    networks:
+      - postgis_net
+    volumes:
+      - db_backups:/backups
+    restart: unless-stopped
 
   geoserver:
     container_name: geoserver
@@ -33,6 +46,7 @@ services:
       GEOWEBCACHE_DATA_DIR: /geoserver/gwc
     networks:
       - proxy_net
+      - postgis_net
     expose:
       - "8080"
     volumes:
@@ -65,9 +79,10 @@ services:
     container_name: geoserver-pgadmin
     env_file: .env
     # dpage/pgadmin4 is the official release
-    image: dpage/pgadmin4:4.6
+    image: dpage/pgadmin4:4.8
     networks:
       - proxy_net
+      - postgis_net
 # Use this when running behind reverse proxy      
     expose:
       - "80"
@@ -92,6 +107,9 @@ volumes:
   db_data:
     name: geoserver_postgis_data
 
+  db_backups:
+    name: geoserver_postgis_backups
+
   geoserver_data:
     name: geoserver_data
 
@@ -104,3 +122,7 @@ networks:
     name: proxy_net
     # Won't be created or destroyed with docker-compose up|down
     external: true
+
+  # This network is only used for database access
+  postgis_net:
+    name: postgis_net
