@@ -56,11 +56,12 @@ So far I have only tested on Debian Stretch.
 
 ## GeoWebCache
 
-Just because there is a geowebcache server does not mean it will
-do anything. Once everything is running, go into the geoserver
+You have to add a setting to make GeoWebCache start working.
+Once the dockers are all running, go into the geoserver
 web interface, go to "TileCaching"->"Caching Defaults", turn on
-"Enable direct integration".. and click "Save".
+"Enable direct integration" and click "Save".
 
-Once you do that when you hit the server with a WMS request,
-you will need to add "tiled=true" to the URL for it to work.
+Once that is done, when your client hits the server with a WMS
+request, you will need to add "tiled=true" to the URL for it to use
+caching.
 
