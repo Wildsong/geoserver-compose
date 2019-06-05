@@ -1,0 +1,10 @@
+FROM mdillon/postgis:11
+MAINTAINER Brian H Wilson "brian@wildsong.biz"
+
+RUN apt-get update \
+    && apt-get install -y postgresql-plpython3-$PG_MAJOR \
+    && rm -rf /var/lib/apt/lists/*
+
+
+
+
