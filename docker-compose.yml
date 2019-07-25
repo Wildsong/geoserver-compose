@@ -79,7 +79,7 @@ services:
     container_name: geoserver-pgadmin
     env_file: .env
     # dpage/pgadmin4 is the official release
-    image: dpage/pgadmin4:4.9
+    image: dpage/pgadmin4:4.11
     networks:
       - proxy_net
       - postgis_net
