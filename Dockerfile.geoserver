@@ -1,4 +1,4 @@
-FROM wildsong/geoserver:2.15.1
+FROM wildsong/geoserver:latest
 MAINTAINER Brian H Wilson "brian@wildsong.biz"
 
 # Note: "BASE" is the same as GEOSERVER_VERSION, see "community-latest"
@@ -29,9 +29,12 @@ ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VER
 ADD http://mirrors.sonic.net/apache//commons/compress/binaries/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}-bin.zip /tmp/commons-compress.zip
 # GeoServer plugins get installed here
 
-# Community modules -- Scripting with Python
+# Community module-- Scripting with Python
 # https://docs.geoserver.org/latest/en/user/community/scripting/index.html
 ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-python-plugin.zip /tmp/python-plugin.zip
+
+# Community module-- SOLR extension for search
+ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-solr-plugin.zip /tmp/solr-plugin.zip
 
 WORKDIR /usr/local/tomcat/webapps/geoserver/WEB-INF/lib
 
@@ -42,7 +45,8 @@ RUN unzip -o /tmp/ogr-wfs-plugin.zip && \
     unzip -j /tmp/commons-compress.zip commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}.jar && \
     unzip -o /tmp/excel-plugin.zip
 
-RUN unzip -o /tmp/python-plugin.zip
+RUN unzip -o /tmp/python-plugin.zip && \
+    unzip -o /tmp/solr-plugin.zip
 
 WORKDIR /usr/local/tomcat
 
