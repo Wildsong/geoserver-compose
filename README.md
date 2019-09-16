@@ -25,13 +25,14 @@ and it's in a github repository. It's at
 https://github.com:brian32768/docker-proxy.git It works quite well,
 including full support for Let's Encrypt certificates.
 
-### Some extra plugins for GeoServer are installed
+### Some plugins for GeoServer are installed
 
 * Vector tile service (integrated with GeoWebCache too)
 * Excel (allows generating Excel files as WFS output)
 * wps
 * ogr-wfs
 * ogr-wps
+* SOLR extension, to support free text searches
 * scripting (allows installing python scripts on the GeoServer)
 
 Adding the Excel plugin required adding the Apache Commons Compress JAR file.
