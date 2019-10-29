@@ -1,10 +1,11 @@
-version: '3.7'
+version: '3.6'
 services:
   db:
     container_name: geoserver-db
+    image: wildsong/postgis:latest
     env_file: .env
     environment:
-      PGDATA: /var/lib/postgresql/data
+      PGDATA: /var/lib/postgresql
       POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD}
     networks:
       - postgis_net
@@ -12,25 +13,22 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
     restart: unless-stopped
-    build:
-      context: .
-      dockerfile: Dockerfile.postgis
 
-  db-backups:
-    container_name: geoserver-db-backup
-    image: kartoza/pg-backup:11.0
-    env_file: .env
-    environment:
-      PGUSER: postgres
-      PGPASSWORD: ${DB_ADMIN_PASSWORD}
-      PGHOST: db
-    networks:
-      - postgis_net
-    volumes:
-      - db_backups:/backups
-    restart: unless-stopped
+#  db-backups:
+#    container_name: geoserver-db-backup
+#    image: kartoza/pg-backup:11.0
+#    env_file: .env
+#    environment:
+#      PGUSER: postgres
+#      PGPASSWORD: ${DB_ADMIN_PASSWORD}
+#      PGHOST: db
+#    networks:
+#      - postgis_net
+#    volumes:
+#      - db_backups:/backups
+#    restart: unless-stopped
 
   geoserver:
     container_name: geoserver
@@ -79,7 +77,7 @@ services:
     container_name: geoserver-pgadmin
     env_file: .env
     # dpage/pgadmin4 is the official release
-    image: dpage/pgadmin4:4.13
+    image: dpage/pgadmin4:4.14
     networks:
       - proxy_net
       - postgis_net
