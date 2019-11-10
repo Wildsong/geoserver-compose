@@ -46,7 +46,7 @@ package is installed.
 ## Prerequisites
 
 You need to have working copies of docker and docker-compose.
-So far I have only tested on Debian Stretch.
+So far I have only tested on Debian.
 
 ## The start up steps
 
@@ -54,6 +54,24 @@ So far I have only tested on Debian Stretch.
 2. 'cd' into the folder.
 3. Copy sample.env to .env and edit it. It has settings for hosts and passwords, etc.
 4. Type "docker-compose up -d"
+
+Then this command should bring everything up
+
+    docker-compose up
+
+### BUG and WORKAROUND
+
+At the current release my PostgreSQL container needs a bit of help. After the first start up I shut it down then went into the
+volume geoserver-postgis-data and edited files by hand. in postgresql.conf add the line
+
+    listen_addresses = '*'
+
+and at the end of pg_hba.conf add
+
+    host trust all all all
+
+Then restart (docker-compose up). If you don't do this then postgresql will be shut up in its container refusing to talk to
+the other containers. 
 
 ## GeoWebCache
 
@@ -66,3 +84,8 @@ Once that is done, when your client hits the server with a WMS
 request, you will need to add "tiled=true" to the URL for it to use
 caching.
 
+## Loading data
+
+I have a script here to load data "import_data.sh".
+Before I can run it I have to create the user gis_owner and the database gis_data, and schema clatsop which are owned by gis_owner.
+I do that in pgadmin4
