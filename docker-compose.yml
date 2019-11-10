@@ -16,19 +16,19 @@ services:
       - db_data:/var/lib/postgresql
     restart: unless-stopped
 
-#  db-backups:
-#    container_name: geoserver-db-backup
-#    image: kartoza/pg-backup:11.0
-#    env_file: .env
-#    environment:
-#      PGUSER: postgres
-#      PGPASSWORD: ${DB_ADMIN_PASSWORD}
-#      PGHOST: db
-#    networks:
-#      - postgis_net
-#    volumes:
-#      - db_backups:/backups
-#    restart: unless-stopped
+  db-backups:
+    container_name: geoserver-db-backup
+    image: kartoza/pg-backup:11.0
+    env_file: .env
+    environment:
+      PGUSER: postgres
+      PGPASSWORD: ${DB_ADMIN_PASSWORD}
+      PGHOST: db
+    networks:
+      - postgis_net
+    volumes:
+      - db_backups:/backups
+    restart: unless-stopped
 
   geoserver:
     container_name: geoserver
@@ -42,6 +42,8 @@ services:
       LETSENCRYPT_MAIL: ${MY_EMAIL}
       GEOSERVER_DATA_DIR: /geoserver
       GEOWEBCACHE_DATA_DIR: /geoserver/gwc
+      GEOSERVER_CSRF_WHITELIST: ${GEOSERVER_CSRF_WHITELIST}
+      GEOSERVER_CSRF_DISABLED: ${GEOSERVER_CSRF_DISABLED}
     networks:
       - proxy_net
       - postgis_net
