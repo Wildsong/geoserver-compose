@@ -112,6 +112,7 @@ volumes:
 
   geoserver_data:
     name: geoserver_data
+    # /geoserver/gwc is the GEOWEBCACHE_CACHE_DIR and contains geowebcache.xml
 
   geoserver_pgadmin:
     name: geoserver_pgadmin

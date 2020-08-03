@@ -1,4 +1,4 @@
-FROM wildsong/geoserver:2.16.0
+FROM wildsong/geoserver:2.16.2
 MAINTAINER Brian H Wilson "brian@wildsong.biz"
 
 #1 Update wildsong/docker-geoserver in github
@@ -12,7 +12,7 @@ MAINTAINER Brian H Wilson "brian@wildsong.biz"
 #9 git push
 
 # These should come from the parent geoserver, n'est pais?
-ENV GEOSERVER_VERSION 2.16.0
+ENV GEOSERVER_VERSION 2.16.2
 ENV GEOSERVER_BASE_VERSION 2.16
 
 ENV APACHE_COMMONS_COMPRESS_VERSION 1.19
