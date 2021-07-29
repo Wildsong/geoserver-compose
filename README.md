@@ -1,5 +1,6 @@
 # geoserver-compose
-GeoServer + GeoWebCache + PostGIS + pgadmin all working together
+
+GeoServer + GeoWebCache + pgadmin all working together
 in perfect harmony in a Docker Compose setup.
 
 This project uses docker-compose to orchestrate creation and startup
@@ -12,16 +13,19 @@ For complete information on Geoserver, see http://geoserver.org/
 * GeoServer to serve spatial data in a wide variety of formats
 * GeoWebCache to cache map tiles
 * A web server to serve static content, for example JavaScript apps
-* PostGIS/PostgreSQL to store data
 * PL/python3 procedural language
 * pgadmin to administer PostgreSQL
 
+### PostgreSQL no longer included
+
+I moved Postgres onto the hosting server for performance, it's no
+longer built in to this composition.
+
 ### Reverse proxy no longer included
 
-I use a separate project, at home I use swag.  At work I use this
-project https://github.com:brian32768/docker-proxy.git
-It works quite well, including full support for
-Let's Encrypt certificates.
+I use a separate project, at home I use swag and at work I use this
+project https://github.com:brian32768/docker-proxy.git They both work
+quite well. Swag is simpler and I should switch at work.
 
 ### Some plugins for GeoServer are installed
 
@@ -31,7 +35,8 @@ Let's Encrypt certificates.
 * ogr-wfs
 * ogr-wps
 * SOLR extension, to support free text searches
-* scripting (allows installing python scripts on the GeoServer)
+
+Note, Python scripting is no longer included upstream so it's not here.
 
 Adding the Excel plugin required adding the Apache Commons Compress JAR file.
 See http://commons.apache.org/proper/commons-compress
@@ -125,7 +130,7 @@ and schema clatsop which are owned by gis_owner. I do that in pgadmin4
 
 ## Lost Geoserver password recovery
 
-Overwrite the file, restart, thusly:
+I am still struggling with this. Ignore these notes for now, don't lose your password.
 
 ```bash
 docker exec geoserver cat /geoserver/security/masterpw.digest
