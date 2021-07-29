@@ -1,4 +1,4 @@
-FROM wildsong/geoserver:2.16.2
+FROM wildsong/geoserver:2.19.2
 MAINTAINER Brian H Wilson "brian@wildsong.biz"
 
 #1 Update wildsong/docker-geoserver in github
@@ -12,10 +12,10 @@ MAINTAINER Brian H Wilson "brian@wildsong.biz"
 #9 git push
 
 # These should come from the parent geoserver, n'est pais?
-ENV GEOSERVER_VERSION 2.16.2
-ENV GEOSERVER_BASE_VERSION 2.16
+ENV GEOSERVER_VERSION 2.19.2
+ENV GEOSERVER_BASE_VERSION 2.19
 
-ENV APACHE_COMMONS_COMPRESS_VERSION 1.19
+ENV APACHE_COMMONS_COMPRESS_VERSION 1.21
 
 # Install GDAL so that the ogr-* plugins will work
 RUN apt-get update && apt-get -y install gdal-bin
@@ -47,9 +47,9 @@ ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VER
 ADD http://mirrors.sonic.net/apache//commons/compress/binaries/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}-bin.zip /tmp/commons-compress.zip
 # GeoServer plugins get installed here
 
-# Community module-- Scripting with Python
+# Community module-- Scripting with Python -- this module is unmaintained and removed from community 
 # https://docs.geoserver.org/latest/en/user/community/scripting/index.html
-ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-python-plugin.zip /tmp/python-plugin.zip
+#ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-python-plugin.zip /tmp/python-plugin.zip
 
 # Community module-- SOLR extension for search
 ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-solr-plugin.zip /tmp/solr-plugin.zip
@@ -62,10 +62,11 @@ RUN unzip -o /tmp/ogr-wfs-plugin.zip && \
     unzip -o /tmp/printing-plugin.zip && \
     unzip -o /tmp/vectortiles-plugin.zip && \
     unzip -j /tmp/commons-compress.zip commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}.jar && \
-    unzip -o /tmp/excel-plugin.zip
-
-RUN unzip -o /tmp/python-plugin.zip && \
+    unzip -o /tmp/excel-plugin.zip \
     unzip -o /tmp/solr-plugin.zip
+
+#unzip -o /tmp/python-plugin.zip && \
+
 
 WORKDIR /usr/local/tomcat
 

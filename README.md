@@ -18,12 +18,10 @@ For complete information on Geoserver, see http://geoserver.org/
 
 ### Reverse proxy no longer included
 
-I used to include nginx in this bundle as a reverse proxy but I moved
-it to a separate project because I needed to proxy other dockers on the same server,
-so now the proxy is separate from geoserver. It's called docker-proxy
-and it's in a github repository. It's at
-https://github.com:brian32768/docker-proxy.git It works quite well,
-including full support for Let's Encrypt certificates.
+I use a separate project, at home I use swag.  At work I use this
+project https://github.com:brian32768/docker-proxy.git
+It works quite well, including full support for
+Let's Encrypt certificates.
 
 ### Some plugins for GeoServer are installed
 
@@ -71,7 +69,14 @@ and at the end of pg_hba.conf add
     host trust all all all
 
 Then restart (docker-compose up). If you don't do this then postgresql will be shut up in its container refusing to talk to
-the other containers. 
+the other containers.
+
+When I run a separate copy of Postgres on the host I add this to the pg_hba.conf file.
+
+   host    all             postgres        172.0.0.0/8             md5        # for pgadmin4 access
+   host    gis_data        gis_owner       172.0.0.0/8             md5
+   host    gis_data        gis_owner       192.168.123.0/24        md5
+   local   gis_data        gis_owner                               md5
 
 ## GeoWebCache
 
@@ -84,8 +89,47 @@ Once that is done, when your client hits the server with a WMS
 request, you will need to add "tiled=true" to the URL for it to use
 caching.
 
+## Connecting
+
+The URls to connect to your new servers are
+
+   https://geoserver.yourdomain.com/geoserver
+   https://geoserver.yourdomain.com/geowebcache
+   https://pgadmin.yourdomain.com/
+
+For pgadmin, use user "postgres" and the password you set in the .env file.
+For Geoserver/Geowebcache, use admin and geoserver.
+
+### What's the admin password?
+
+Geoserver used to have a default of "root" and "geoserver". They don't do
+that anymore. Start up the container and dump out the initial
+password with this command.
+
+```bash
+docker exec geoserver cat /geoserver/security/masterpw.info
+This file was created at 2021/06/05 16:40:14
+
+The generated master password is: ,~oLl5E&
+
+Test the master password by logging in as user "root"
+
+This file should be removed after reading !!!.
+```
+
 ## Loading data
 
 I have a script here to load data "import_data.sh".
-Before I can run it I have to create the user gis_owner and the database gis_data, and schema clatsop which are owned by gis_owner.
-I do that in pgadmin4
+Before I can run it I have to create the user gis_owner and the database gis_data,
+and schema clatsop which are owned by gis_owner. I do that in pgadmin4
+
+## Lost Geoserver password recovery
+
+Overwrite the file, restart, thusly:
+
+```bash
+docker exec geoserver cat /geoserver/security/masterpw.digest
+docker container cp masterpw.digest geoserver:/geoserver/security
+docker exec geoserver cat /geoserver/security/masterpw.digest
+docker-compose restart
+```
