@@ -1,5 +1,10 @@
 FROM mdillon/postgis:11
-MAINTAINER Brian H Wilson "brian@wildsong.biz"
+# Sadly this image is 4 years old, I will need to find a new one.
+# What's that? You suggest postgis/postgis ????? It is 3 days old
+
+LABEL maintainer="Brian Wilson <brian@wildsong.biz>"
+LABEL biz.wildsong.name="postgis"
+#LABEL version=""
 
 RUN apt-get update \
     && apt-get install -y postgresql-plpython3-$PG_MAJOR \

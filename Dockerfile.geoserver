@@ -1,5 +1,7 @@
-FROM wildsong/geoserver:2.16.0
-MAINTAINER Brian H Wilson "brian@wildsong.biz"
+FROM wildsong/geoserver:2.21.1
+LABEL maintainer="Brian Wilson <brian@wildsong.biz>"
+#LABEL biz.wildsong.name="geoserver"
+#LABEL version="2.0"
 
 #1 Update wildsong/docker-geoserver in github
 #2 Follow the README instructions there to manually build a new release
@@ -12,8 +14,8 @@ MAINTAINER Brian H Wilson "brian@wildsong.biz"
 #9 git push
 
 # These should come from the parent geoserver, n'est pais?
-ENV GEOSERVER_VERSION 2.16.0
-ENV GEOSERVER_BASE_VERSION 2.16
+ENV GEOSERVER_VERSION 2.21.1
+ENV GEOSERVER_BASE_VERSION 2.21
 
 ENV APACHE_COMMONS_COMPRESS_VERSION 1.19
 
