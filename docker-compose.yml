@@ -1,4 +1,29 @@
 version: '3.7'
+
+volumes:
+  db_data:
+    name: geoserver_postgis_data
+
+  db_backups:
+    name: geoserver_postgis_backups
+
+  geoserver_data:
+    name: geoserver_data
+
+  geoserver_pgadmin:
+    name: geoserver_pgadmin
+
+networks:
+  # This is a network we share with our reverse proxy
+  proxy:
+    name: caddy
+    # Won't be created or destroyed with docker-compose up|down
+    external: true
+
+  # This network is only used for database access
+  postgis:
+    name: postgis
+
 services:
   db:
     container_name: geoserver-db
@@ -36,13 +61,14 @@ services:
     container_name: geoserver
     image: geoserver
     build:
-      dockerfile: Dockerfile.geoserver
+      dockerfile: Dockerfile.tomcat
       context: .
       args:
         GEOSERVER_VERSION: 2.21.1
         GEOSERVER_BASE_VERSION: 2.21
+        GEOSERVER_DATA_DIR: /geoserver
         GEOWEBCACHE_VERSION: 1.21.1
-        GEOSERVER_DATA_DIR: /usr/local/tomcat/geoserver
+        GEOWEBCACHE_CACHE_DIR: /geoserver/gwc/tmp
         APACHE_COMMONS_COMPRESS_VERSION: 1.21
     env_file: .env
     environment:
@@ -55,7 +81,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - geoserver_data:/usr/local/tomcat/geoserver
+      - geoserver_data:/geoserver
     restart: unless-stopped
 
    
@@ -96,26 +122,3 @@ services:
       # Added SCRIPT_NAME to solve this problem: https://stackoverflow.com/questions/46381668/pgadmin4-wont-work-in-specific-location-behind-nginx
 #      SCRIPT_NAME: /pgadmin4
 
-volumes:
-  db_data:
-    name: geoserver_postgis_data
-
-  db_backups:
-    name: geoserver_postgis_backups
-
-  geoserver_data:
-    name: geoserver_data
-
-  geoserver_pgadmin:
-    name: geoserver_pgadmin
-
-networks:
-  # This is a network we share with our reverse proxy
-  proxy:
-    name: proxy
-    # Won't be created or destroyed with docker-compose up|down
-    external: true
-
-  # This network is only used for database access
-  postgis:
-    name: postgis
