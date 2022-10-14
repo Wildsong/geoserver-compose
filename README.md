@@ -7,6 +7,10 @@ of its containers.
 
 For complete information on Geoserver, see http://geoserver.org/
 
+**NOTE 2022-10-14 RIGHT NOW TODAY I AM ONLY TESTING GEOSERVER (docker-compose up geoserver)**
+
+**NOTE -- Don't "upgrade" from Tomcat:9 in Dockerfile.tomcat -- it won't work! Trust me.**
+
 ## What is included
 
 * GeoServer to serve spatial data in a wide variety of formats
@@ -16,14 +20,7 @@ For complete information on Geoserver, see http://geoserver.org/
 * PL/python3 procedural language
 * pgadmin to administer PostgreSQL
 
-### Reverse proxy no longer included
-
-I used to include nginx in this bundle as a reverse proxy but I moved
-it to a separate project because I needed to proxy other dockers on the same server,
-so now the proxy is separate from geoserver. It's called docker-proxy
-and it's in a github repository. It's at
-https://github.com:brian32768/docker-proxy.git It works quite well,
-including full support for Let's Encrypt certificates.
+I used to include an Nginx-based proxy in this bundle, now I use a separate one, based on Caddy.
 
 ### Some plugins for GeoServer are installed
 
