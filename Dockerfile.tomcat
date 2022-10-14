@@ -1,0 +1,83 @@
+FROM tomcat:9.0
+LABEL maintainer="Brian Wilson <brian@wildsong.biz>"
+LABEL version="1.0"
+LABEL biz.wildsong.name="tomcat-geoserver"
+
+
+# Tomcat image for versions >9 needs to have unzip added for the next step.
+# Install GDAL so that the ogr-* plugins will work
+RUN apt-get update && apt-get install -y unzip gdal-bin
+
+ARG GEOSERVER_VERSION
+ARG GEOSERVER_BASE_VERSION
+ARG GEOWEBCACHE_VERSION
+ARG APACHE_COMMONS_COMPRESS_VERSION
+ARG GEOSERVER_DATA_DIR
+ARG GEOWEBCACHE_CACHE_DIR
+
+WORKDIR /tmp
+ADD https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}-war.zip/download geoserver.war.zip
+ADD https://sourceforge.net/projects/geowebcache/files/geowebcache/${GEOWEBCACHE_VERSION}/geowebcache-${GEOWEBCACHE_VERSION}-war.zip/download geowebcache.war.zip
+# during testing, you can pre-download these files to speed things up!!
+#ADD geoserver-2.21.1-war.zip geoserver.war.zip
+#ADD geowebcache-1.21.1-war.zip geowebcache.war.zip
+
+# Expand the memory space for Tomcat
+ENV CATALINA_OPTS "-Djava.awt.headless=true -Xmx768m -Xrs -XX:PerfDataSamplingInterval=500 -Dorg.geotools.referencing.forceXY=true -DGEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR} -DGEOWEBCACHE_CACHE_DIR=${GEOWEBCACHE_CACHE_DIR}"
+
+# When the container launches it starts Tomcat, which will deploy any WAR files it finds in the webapps folder, but I can do it manually too.
+# I will deploy geoserver and geowebcache here, so that when we install plugins down below, the geoserver files don't get wiped out,
+# and as a side effect the Docker image will be able to start faster. And I can mount XML files into the conf folder to modify the set up on the services.
+
+WORKDIR ${CATALINA_HOME}/webapps/geoserver
+RUN unzip /tmp/geoserver.war.zip geoserver.war && mv geoserver.war geoserver.war.zip && unzip geoserver.war.zip && \
+    rm geoserver.war.zip /tmp/geoserver.war.zip
+
+WORKDIR ${CATALINA_HOME}/webapps/geowebcache
+RUN unzip /tmp/geowebcache.war.zip geowebcache.war && mv geowebcache.war geowebcache.war.zip && unzip geowebcache.war.zip && \
+    rm geowebcache.war.zip /tmp/geowebcache.war.zip
+
+WORKDIR ${CATALINA_HOME}
+
+# Make logging more chatty and spit them out to the console. This sort of throws lots of errors all on its own
+#ADD logging.properties lib/
+
+# Download the plugins 
+# ...the ogr plugins require GDAL to be findable on the path.
+
+# WPS
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-wps-plugin.zip /tmp/wps-plugin.zip
+
+# OGR-WFS
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-ogr-wfs-plugin.zip /tmp/ogr-wfs-plugin.zip
+
+# OGR-WPS
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-ogr-wps-plugin.zip /tmp/ogr-wps-plugin.zip
+
+# Vector Tiles plugin
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-vectortiles-plugin.zip /tmp/vectortiles-plugin.zip
+
+# Excel WFS plugin (adds ability to generate XLS/XLSX files from WFS queries)
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-excel-plugin.zip /tmp/excel-plugin.zip
+
+# Install Apache Commons Compress for the Excel XLSX formatter
+ADD http://mirrors.sonic.net/apache//commons/compress/binaries/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}-bin.zip /tmp/commons-compress.zip
+
+# Printing
+ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-printing-plugin.zip /tmp/printing-plugin.zip
+
+# Community module-- SOLR extension for search
+# https://docs.geoserver.org/2.22.x/en/user/community/solr/index.html
+ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-solr-plugin.zip /tmp/solr-plugin.zip
+
+# Now deploy the Geoserver plugins
+WORKDIR ${CATALINA_HOME}/webapps/geoserver/WEB-INF/lib
+ADD unzip_plugins.sh .
+RUN ./unzip_plugins.sh && rm /tmp/*.zip
+
+# These folders have to exist for the services to be happy.
+RUN mkdir -p ${GEOSERVER_DATA_DIR} && mkdir -p ${GEOSERVER_DATA_DIR}/gwc
+VOLUME ${GEOSERVER_DATA_DIR}
+
+WORKDIR ${CATALINA_HOME}
+
