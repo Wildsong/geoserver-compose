@@ -3,9 +3,6 @@ LABEL maintainer="Brian Wilson <brian@wildsong.biz>"
 LABEL version="1.0"
 LABEL biz.wildsong.name="tomcat-geoserver"
 
-
-# Tomcat image for versions >9 needs to have unzip added for the next step.
-# Install GDAL so that the ogr-* plugins will work
 RUN apt-get update && apt-get install -y unzip gdal-bin
 
 ARG GEOSERVER_VERSION
@@ -76,7 +73,7 @@ ADD unzip_plugins.sh .
 RUN ./unzip_plugins.sh && rm /tmp/*.zip
 
 # These folders have to exist for the services to be happy.
-RUN mkdir -p ${GEOSERVER_DATA_DIR} && mkdir -p ${GEOSERVER_DATA_DIR}/gwc
+RUN mkdir -p ${GEOSERVER_DATA_DIR} && mkdir -p ${GEOWEBCACHE_CACHE_DIR}
 VOLUME ${GEOSERVER_DATA_DIR}
 
 WORKDIR ${CATALINA_HOME}

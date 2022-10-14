@@ -9,6 +9,8 @@ volumes:
 
   geoserver_data:
     name: geoserver_data
+  blobstore:
+    name: geowebcache_blobstore
 
   geoserver_pgadmin:
     name: geoserver_pgadmin
@@ -82,6 +84,12 @@ services:
       - "8080:8080"
     volumes:
       - geoserver_data:/geoserver
+      - blobstore:/tmp/defaultCache
+    labels:
+      caddy: geoserver.${DOMAIN}
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      caddy.tls.protocols: "tls1.3"
+      caddy.tls.dns: "cloudflare ${CLOUDFLARE_API_TOKEN}"
     restart: unless-stopped
 
    
