@@ -1,26 +1,36 @@
-FROM wildsong/geoserver:2.21.1
+FROM tomcat:10.0.26
 LABEL maintainer="Brian Wilson <brian@wildsong.biz>"
-#LABEL biz.wildsong.name="geoserver"
-#LABEL version="2.0"
+LABEL version="2.0"
+LABEL biz.wildsong.name="geoserver"
 
-#1 Update wildsong/docker-geoserver in github
-#2 Follow the README instructions there to manually build a new release
-#3 Update version numbers in this file, esp the one in the FROM line above
-#4 run "docker-compose down"
-#5 run "docker-compose up"
-#6 test
-#7 git commit 
-#8 git tag ???
-#9 git push
 
-# These should come from the parent geoserver, n'est pais?
-ENV GEOSERVER_VERSION 2.21.1
-ENV GEOSERVER_BASE_VERSION 2.21
-
-ENV APACHE_COMMONS_COMPRESS_VERSION 1.19
-
+# Tomcat image for versions >9 needs to have unzip added for the next step.
 # Install GDAL so that the ogr-* plugins will work
-RUN apt-get update && apt-get -y install gdal-bin
+RUN apt-get update && apt-get install -y unzip gdal-bin
+
+ARG GEOSERVER_VERSION
+ARG GEOSERVER_BASE_VERSION
+ARG GEOWEBCACHE_VERSION
+ARG APACHE_COMMONS_COMPRESS_VERSION
+
+ADD https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}-war.zip/download /tmp/geoserver.war.zip
+
+ADD https://sourceforge.net/projects/geowebcache/files/geowebcache/${GEOWEBCACHE_VERSION}/geowebcache-${GEOWEBCACHE_VERSION}-war.zip/download /tmp/geowebcache.war.zip
+
+ENV GEOSERVER_DATA_DIR ${CATALINA_HOME}/geoserver
+# Expand the memory space for Tomcat
+ENV CATALINA_OPTS "-Djava.awt.headless=true -Xmx768m -Xrs -XX:PerfDataSamplingInterval=500 -Dorg.geotools.referencing.forceXY=true -DGEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}"
+
+WORKDIR ${CATALINA_HOME}/webapps
+
+RUN rm -f geoserver geowebcache &&\
+    unzip /tmp/geoserver.war.zip geoserver.war &&\
+    unzip /tmp/geowebcache.war.zip geowebcache.war &&\
+    rm /tmp/geoserver.war.zip /tmp/geowebcache.war.zip
+
+# When the container launches it starts Tomcat, which will deploy the WAR files.
+
+WORKDIR ${CATALINA_HOME}
 
 # Download the wps plugin and its supporting ogr-wfs and ogr-wps plugins
 # ...the ogr plugins require GDAL to be findable on the path.
@@ -35,7 +45,7 @@ ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VER
 ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-ogr-wps-plugin.zip /tmp/ogr-wps-plugin.zip
 
 # Printing
-ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-printing-plugin.zip /tmp/printing-plugin.zip
+#ADD https://download.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}-printing-plugin.zip /tmp/printing-plugin.zip
 
 # Vector Tiles plugin
 
@@ -51,23 +61,27 @@ ADD http://mirrors.sonic.net/apache//commons/compress/binaries/commons-compress-
 
 # Community module-- Scripting with Python
 # https://docs.geoserver.org/latest/en/user/community/scripting/index.html
-ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-python-plugin.zip /tmp/python-plugin.zip
+#ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-python-plugin.zip /tmp/python-plugin.zip
 
 # Community module-- SOLR extension for search
-ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-solr-plugin.zip /tmp/solr-plugin.zip
+#ADD https://build.geoserver.org/geoserver/${GEOSERVER_BASE_VERSION}.x/community-latest/geoserver-${GEOSERVER_BASE_VERSION}-SNAPSHOT-solr-plugin.zip /tmp/solr-plugin.zip
 
-WORKDIR /usr/local/tomcat/webapps/geoserver/WEB-INF/lib
+WORKDIR ${CATALINA_HOME}/webapps/geoserver/WEB-INF/lib
 
 RUN unzip -o /tmp/ogr-wfs-plugin.zip && \
     unzip -o /tmp/ogr-wps-plugin.zip && \
     unzip -o /tmp/wps-plugin.zip && \
-    unzip -o /tmp/printing-plugin.zip && \
     unzip -o /tmp/vectortiles-plugin.zip && \
     unzip -j /tmp/commons-compress.zip commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}/commons-compress-${APACHE_COMMONS_COMPRESS_VERSION}.jar && \
     unzip -o /tmp/excel-plugin.zip
 
-RUN unzip -o /tmp/python-plugin.zip && \
-    unzip -o /tmp/solr-plugin.zip
+#RUN unzip -o /tmp/printing-plugin.zip && \
+#RUN unzip -o /tmp/python-plugin.zip && \
+#    unzip -o /tmp/solr-plugin.zip
 
-WORKDIR /usr/local/tomcat
+# These folders have to exist for the deployment to be happy.
+RUN mkdir -p ${GEOSERVER_DATA_DIR} && mkdir -p ${GEOSERVER_DATA_DIR}/gwc
+VOLUME ${GEOSERVER_DATA_DIR}
+
+WORKDIR ${CATALINA_HOME}
 

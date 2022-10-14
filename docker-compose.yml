@@ -7,7 +7,7 @@ services:
       PGDATA: /var/lib/postgresql/data
       POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD}
     networks:
-      - postgis_net
+      - postgis
     # Exposing the port makes working from the host via psql easier.
     ports:
       - "5432:5432"
@@ -27,46 +27,44 @@ services:
       PGPASSWORD: ${DB_ADMIN_PASSWORD}
       PGHOST: db
     networks:
-      - postgis_net
+      - postgis
     volumes:
       - db_backups:/backups
     restart: unless-stopped
 
   geoserver:
     container_name: geoserver
+    image: geoserver
+    build:
+      dockerfile: Dockerfile.geoserver
+      context: .
+      args:
+        GEOSERVER_VERSION: 2.21.1
+        GEOSERVER_BASE_VERSION: 2.21
+        GEOWEBCACHE_VERSION: 1.21.1
+        GEOSERVER_DATA_DIR: /usr/local/tomcat/geoserver
+        APACHE_COMMONS_COMPRESS_VERSION: 1.21
     env_file: .env
     environment:
       ENABLE_JSONP: "true"
-      VIRTUAL_HOST: ${GEOSERVER_VIRTUAL_HOST}
-      VIRTUAL_PORT: 8080
-      NETWORK_ACCESS: internal
-      LETSENCRYPT_HOST: ${GEOSERVER_VIRTUAL_HOST}
-      LETSENCRYPT_MAIL: ${MY_EMAIL}
-      GEOSERVER_DATA_DIR: /geoserver
-      GEOWEBCACHE_DATA_DIR: /geoserver/gwc
     networks:
-      - proxy_net
-      - postgis_net
+      - proxy
+      - postgis
     expose:
       - "8080"
+    ports:
+      - "8080:8080"
     volumes:
-      - geoserver_data:/geoserver
+      - geoserver_data:/usr/local/tomcat/geoserver
     restart: unless-stopped
-    build:
-      context: .
-      dockerfile: Dockerfile.geoserver
+
    
   web-server:
     container_name: geoserver-web
     image: nginx:alpine
     networks:
-      - proxy_net
+      - proxy
     env_file: .env
-    environment:
-      VIRTUAL_HOST: ${WEB_SERVER}
-      LETSENCRYPT_HOST: ${WEB_SERVER}
-      LETSENCRYPT_MAIL: ${WEB_SERVER_MAIL}
-      NETWORK_ACCESS: internal
     expose:
       - "80"
     volumes:
@@ -81,8 +79,8 @@ services:
     # dpage/pgadmin4 is the official release
     image: dpage/pgadmin4:4.13
     networks:
-      - proxy_net
-      - postgis_net
+      - proxy
+      - postgis
 # Use this when running behind reverse proxy      
     expose:
       - "80"
@@ -93,15 +91,10 @@ services:
       # Session data, user files, config files, config database go here.
       - geoserver_pgadmin:/var/lib/pgadmin
     environment:
-      VIRTUAL_HOST: ${PGADMIN_VIRTUAL_HOST}
-      VIRTUAL_PORT: 80
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
       # Added SCRIPT_NAME to solve this problem: https://stackoverflow.com/questions/46381668/pgadmin4-wont-work-in-specific-location-behind-nginx
 #      SCRIPT_NAME: /pgadmin4
-      NETWORK_ACCESS: internal
-      LETSENCRYPT_HOST: ${PGADMIN_VIRTUAL_HOST}
-      LETSENCRYPT_MAIL: ${MY_EMAIL}
 
 volumes:
   db_data:
@@ -118,11 +111,11 @@ volumes:
 
 networks:
   # This is a network we share with our reverse proxy
-  proxy_net:
-    name: proxy_net
+  proxy:
+    name: proxy
     # Won't be created or destroyed with docker-compose up|down
     external: true
 
   # This network is only used for database access
-  postgis_net:
-    name: postgis_net
+  postgis:
+    name: postgis
