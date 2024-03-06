@@ -1,0 +1,88 @@
+volumes:
+  geonode_data:
+    name: geonode_data
+
+  geoserver_data:
+    name: geoserver_data
+    external: true
+  blobstore:
+    name: geowebcache_blobstore
+    external: true
+
+  db_data:
+    name: geoserver_postgis_data
+    external: true
+
+  db_backups:
+    name: geoserver_postgis_backups
+
+  geoserver_pgadmin:
+    name: geoserver_pgadmin
+    external: true
+
+services:
+  geonode:
+    image: geonode/geonode:4.2.2
+    env_file: .env
+    ports:
+      - "8079:80"
+    volumes:
+      - geonode_data:/geoserver_data/data:rw
+    restart: unless-stopped
+    
+  geoserver:
+    image: geonode/geoserver:2.23.3
+    env_file: .env
+    environment:
+    # For more extensions, see 
+    # https://docs.geoserver.org/latest/en/user/installation/docker.html
+      INSTALL_EXTENSIONS: "false"
+      STABLE_EXTENSIONS: "wps,ogr-wfs,vectortiles,excel,printing"
+      COMMUNITY_EXTENSIONS: "solr"
+      ENABLE_JSONP: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - geoserver_data:/opt/geoserver_data
+      - blobstore:/tmp/defaultCache
+    restart: unless-stopped
+
+  web-server:
+    image: nginx:alpine
+    env_file: .env
+    ports:
+      - "8081:80"
+    volumes:
+      # I am binding this to a filesystem on the host
+      # for now to make updating content easier.
+      - /var/www/maps/html:/usr/share/nginx/html
+    restart: unless-stopped
+ 
+  db:
+    image: postgis/postgis:15-3.3
+    env_file: .env
+    environment:
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD}
+    # Exposing the port makes working from the host via psql easier.
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    env_file: .env
+    ports:
+      - "8082:80"
+    volumes:
+      # Session data, user files, config files, config database go here.
+      - geoserver_pgadmin:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_DISABLE_POSTFIX: "true"
+      # Added SCRIPT_NAME to solve this problem: https://stackoverflow.com/questions/46381668/pgadmin4-wont-work-in-specific-location-behind-nginx
+#      SCRIPT_NAME: /pgadmin4
+
